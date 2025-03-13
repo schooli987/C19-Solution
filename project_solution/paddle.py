@@ -8,8 +8,10 @@ WINDOW_WIDTH = 800
 WINDOW_HEIGHT = 600
 display_surface = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 pygame.display.set_caption("Paddle Game")
-hit_sound = pygame.mixer.Sound("ballhit.mp3")
+hit_sound = pygame.mixer.Sound("hit.mp3")
 bounce_sound = pygame.mixer.Sound("bounce.mp3")
+player_win = pygame.mixer.Sound("player_win.mp3")
+computer_win= pygame.mixer.Sound("computer_win.mp3")
 # Set FPS and clock
 FPS = 60
 clock = pygame.time.Clock()
@@ -47,11 +49,12 @@ class ComputerPaddle(pygame.sprite.Sprite):
         self.score=0
     
     def update(self):
-         # if ball.rect.centery > self.rect.centery:
-         #       self.rect.y += self.velocity
-         #  elif ball.rect.centery < self.rect.centery:
-         #     self.rect.y -= self.velocity
-        self.rect.y=ball.rect.centery
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_w]:
+            self.rect.y -= self.velocity
+        if keys[pygame.K_s]:
+            self.rect.y += self.velocity
+       
 class Ball(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
@@ -68,7 +71,7 @@ class Ball(pygame.sprite.Sprite):
         
         # Bounce off top and bottom
         if self.rect.top <= 0 or self.rect.bottom >= WINDOW_HEIGHT:
-         bounce_sound.play()
+         hit_sound.play()
          self.velocity_y*=-1
 
 # Create game objects
@@ -114,8 +117,16 @@ while running:
         ball.rect.center = (WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2)  # Reset position
         ball.velocity_x *= -1  # Change direction
         
-    if player_paddle.score==5 or computer_paddle.score==5:
+    if player_paddle.score==5:
+        player_win.play()
         gameover=True
+
+
+    if computer_paddle.score==5:
+        computer_win.play()
+        gameover=True
+
+
     if gameover:
         display_surface.fill((0,0,0))  # Clear the screen
         display_surface.blit(gameover_text, gameover_rect)  # Show Game Over
@@ -125,7 +136,7 @@ while running:
 
     # Ball collision with paddles
     if pygame.sprite.collide_rect(ball, player_paddle) or pygame.sprite.collide_rect(ball, computer_paddle):
-        hit_sound.play()
+        bounce_sound.play()
         ball.velocity_x *= -1
     
 
