@@ -8,8 +8,8 @@ WINDOW_WIDTH = 800
 WINDOW_HEIGHT = 600
 display_surface = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 pygame.display.set_caption("Paddle Game")
-gameover_sound = pygame.mixer.Sound("game_over.mp3")
-hit_sound = pygame.mixer.Sound("hit.mp3")
+hit_sound = pygame.mixer.Sound("ballhit.mp3")
+bounce_sound = pygame.mixer.Sound("bounce.mp3")
 # Set FPS and clock
 FPS = 60
 clock = pygame.time.Clock()
@@ -47,12 +47,11 @@ class ComputerPaddle(pygame.sprite.Sprite):
         self.score=0
     
     def update(self):
-        keys = pygame.key.get_pressed()
-        if keys[pygame.K_w]:
-            self.rect.y -= self.velocity
-        if keys[pygame.K_s]:
-            self.rect.y += self.velocity
-       
+         # if ball.rect.centery > self.rect.centery:
+         #       self.rect.y += self.velocity
+         #  elif ball.rect.centery < self.rect.centery:
+         #     self.rect.y -= self.velocity
+        self.rect.y=ball.rect.centery
 class Ball(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
@@ -69,7 +68,7 @@ class Ball(pygame.sprite.Sprite):
         
         # Bounce off top and bottom
         if self.rect.top <= 0 or self.rect.bottom >= WINDOW_HEIGHT:
-         hit_sound.play()
+         bounce_sound.play()
          self.velocity_y*=-1
 
 # Create game objects
@@ -116,7 +115,6 @@ while running:
         ball.velocity_x *= -1  # Change direction
         
     if player_paddle.score==5 or computer_paddle.score==5:
-        gameover_sound.play()
         gameover=True
     if gameover:
         display_surface.fill((0,0,0))  # Clear the screen
